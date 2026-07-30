@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f5f7fa;
+  color: #1f2a37;
+}
+
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+}
+
+/* Tabular figures for IDs, dates, and numeric table columns */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: rgba(27, 79, 140, 0.18);
+}
