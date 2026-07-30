@@ -26,7 +26,6 @@ export async function POST(req: Request) {
     data[`s${i}`] = typeof s === "string" && s.trim() !== "" ? s.trim() : null;
   }
 
-  // Minimal validation — mirrors submit_apply.php required fields
   const required = ["full_name", "employee_id", "birth_date", "address", "department", "permit_type"];
   for (const field of required) {
     if (!data[field]) {
@@ -37,7 +36,6 @@ export async function POST(req: Request) {
   const permitType = data.permit_type as PermitType;
   const expiryDate = computeExpiryDate(permitType);
 
-  // Photo upload (optional)
   let photoPath: string | null = null;
   const photo = formData.get("photo");
   if (photo instanceof File && photo.size > 0) {
@@ -54,15 +52,13 @@ export async function POST(req: Request) {
     photoPath = publicUrl.publicUrl;
   }
 
-  const { data: inserted, error } = await supabase
-    .from("applications")
-    .insert({ ...data, expiry_date: expiryDate, photo_path: photoPath, status: "PENDING" })
-    .select("id")
-    .single();
+  const { data: newId, error } = await supabase.rpc("submit_application", {
+    payload: { ...data, expiry_date: expiryDate, photo_path: photoPath },
+  });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ id: inserted.id });
+  return NextResponse.json({ id: newId });
 }
